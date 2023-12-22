@@ -25,6 +25,7 @@ func NewPowUsecase(config *config.Config) *PowUsecase {
 	}
 }
 
+// Verify verifies the nonce
 func (uc *PowUsecase) Verify(challenge string, nonce int) error {
 	if !verify(challenge, nonce, uc.config.Difficulty) {
 		return errors.New("invalid nonce")
@@ -33,18 +34,21 @@ func (uc *PowUsecase) Verify(challenge string, nonce int) error {
 	return nil
 }
 
+// GetChallenge returns a challenge
 func (uc *PowUsecase) GetChallenge() []byte {
 	token := generateChallenge()
 
 	return []byte(token)
 }
 
+// GetQuote returns a quote
 func generateChallenge() string {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	challenge := strconv.Itoa(rand.Int())
 	return challenge
 }
 
+// verify verifies the nonce
 func verify(challenge string, nonce int, difficulty int) bool {
 	prefix := strings.Repeat(prefix, difficulty)
 	data := challenge + strconv.Itoa(nonce)
