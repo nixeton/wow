@@ -46,7 +46,6 @@ func TestPowUsecase_Verify(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			uc := &PowUsecase{
 				config: &config.Config{
-					App: config.App{},
 					TCP: config.TCP{},
 					Log: config.Log{},
 					Pow: config.Pow{
