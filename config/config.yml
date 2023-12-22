@@ -3,7 +3,7 @@ app:
   version: '1.0.0'
 
 tpc:
-  address: 'localhost:8888'
+  address: '0.0.0.0:8081'
   deadline: '20s'
   keep_alive: '20s'
 
