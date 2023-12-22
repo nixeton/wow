@@ -47,6 +47,7 @@ func NewServer(
 	}
 }
 
+// Start starts the server
 func (s *Server) Start(ctx context.Context) (err error) {
 	ctx, s.cancel = context.WithCancel(ctx)
 	defer s.cancel()
@@ -69,6 +70,7 @@ func (s *Server) Stop() {
 	s.cancel()
 }
 
+// listen listens for incoming connections
 func (s *Server) listen(ctx context.Context) {
 
 	go func() {
@@ -126,6 +128,7 @@ func (s *Server) handle(conn net.Conn) {
 		return
 	}
 
+	// send difficulty
 	diff := s.config.Difficulty
 	diffs := []byte(strconv.FormatInt(int64(diff), 10))
 	if err := helpers.Write(conn, diffs); err != nil {
@@ -133,25 +136,28 @@ func (s *Server) handle(conn net.Conn) {
 		return
 	}
 
+	// send challenge
 	challenge := s.proceedPow.GetChallenge()
 	if err := helpers.Write(conn, challenge); err != nil {
 		s.logger.Error("failed to write challenge: ", err.Error())
 		return
 	}
-
 	log.Info().Msg("challenge: " + string(challenge))
 
+	// receive nonce
 	nonce, err := helpers.Read(conn)
 	if err != nil {
 		s.logger.Error("failed to read solution: ", err.Error())
 		return
 	}
 
+	// verify nonce
 	if err = s.proceedPow.Verify(challenge, nonce); err != nil {
 		s.logger.Error("failed to verify solution: ", err.Error())
 		return
 	}
 
+	// send quote
 	quote := s.proceedQuote.GetQuote()
 	if err = helpers.Write(conn, []byte(quote)); err != nil {
 		s.logger.Error("failed to write quote: ", err.Error())
