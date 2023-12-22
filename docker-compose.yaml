@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: .dockerfile.server
+    image: nixeton/wow/server:latest
+    container_name: wow-server
+    environment:
+      - TCP_ADDRESS=0.0.0.0:8081
+      - TCP_KEEP_ALIVE=20s
+      - TCP_DEADLINE=20s
+      - POW_DIFFICULTY=4
+      - LOG_LEVEL=debug
+    restart: always
+
+  client:
+    build:
+      context: .
+      dockerfile: .dockerfile.client
+    image: nixeton/wow/client:latest
+    container_name: wow-client
+    environment:
+      - SERVER_ADDR=server:8081
+    depends_on:
+      - server
+    links:
+      - server
