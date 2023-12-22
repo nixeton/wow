@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"net"
 	"strconv"
 	"time"
@@ -119,12 +120,11 @@ func (s *Server) handle(conn net.Conn) {
 		}
 	}(conn)
 
-	message, err := helpers.Read(conn)
+	_, err := helpers.Read(conn)
 	if err != nil {
 		s.logger.Error("failed to read message: ", err.Error())
 		return
 	}
-	s.logger.Debug("message: ", string(message))
 
 	diff := s.config.Difficulty
 	diffs := []byte(strconv.FormatInt(int64(diff), 10))
@@ -138,6 +138,8 @@ func (s *Server) handle(conn net.Conn) {
 		s.logger.Error("failed to write challenge: ", err.Error())
 		return
 	}
+
+	log.Info().Msg("challenge: " + string(challenge))
 
 	nonce, err := helpers.Read(conn)
 	if err != nil {
