@@ -8,7 +8,7 @@ tpc:
   keep_alive: '20s'
 
 pow:
-  difficulty: 7
+  difficulty: 5
 
 logger:
   log_level: 'debug'
