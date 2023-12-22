@@ -16,6 +16,8 @@ var difficulty int
 
 // maxCount - max count of iterations
 const maxCount = 1000
+const prefix = "0"
+const address = "localhost:8888"
 
 func main() {
 	client := NewClient()
@@ -36,7 +38,7 @@ func main() {
 func solveChallenge(challenge string) (string, int64) {
 	var nonce int64
 	var hash string
-	prefix := strings.Repeat("0", difficulty)
+	prefix := strings.Repeat(prefix, difficulty)
 
 	for {
 		nonce++
@@ -78,9 +80,9 @@ func (c *Client) Run(ctx context.Context, count int) error {
 // GetQuote - get quote from server
 func (c *Client) GetQuote(ctx context.Context) ([]byte, error) {
 	var dialer net.Dialer
-	conn, err := dialer.DialContext(ctx, "tcp", "localhost:8888")
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial: %w", err)
+		return nil, fmt.Errorf("field to connect: %w", err)
 	}
 	defer func() {
 		if err := conn.Close(); err != nil {
