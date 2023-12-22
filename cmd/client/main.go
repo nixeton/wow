@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"net"
 	"strconv"
 	"strings"
@@ -13,87 +14,25 @@ import (
 
 var difficulty int
 
-const maxCount = 100000000000
+// maxCount - max count of iterations
+const maxCount = 1000
 
 func main() {
 	client := NewClient()
 	err := client.Run(context.Background(), maxCount)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Error().Msg(err.Error())
+		return
 	}
 
 	_, err = client.GetQuote(context.Background())
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Error().Msg(err.Error())
+		return
 	}
 }
 
-type client struct {
-}
-
-func NewClient() *client {
-
-	return &client{}
-}
-
-func (c *client) Run(ctx context.Context, count int) error {
-	for i := 0; i < count; i++ {
-		if ctx.Err() != nil {
-			break
-		}
-
-		q, err := c.GetQuote(ctx)
-		if err != nil {
-			fmt.Println(err.Error())
-		} else {
-			fmt.Println(string(q))
-		}
-	}
-
-	return nil
-}
-
-func (c *client) GetQuote(ctx context.Context) ([]byte, error) {
-	var dialer net.Dialer
-	conn, err := dialer.DialContext(ctx, "tcp", "localhost:8888")
-	if err != nil {
-		return nil, fmt.Errorf("failed to dial: %w", err)
-	}
-	defer func() {
-		if err := conn.Close(); err != nil {
-			fmt.Println(err.Error())
-		}
-	}()
-
-	if err := helpers.Write(conn, []byte("challenge")); err != nil {
-		return nil, fmt.Errorf("send challenge request err: %w", err)
-	}
-
-	diffBytes, err := helpers.Read(conn)
-	if err != nil {
-		return nil, fmt.Errorf("receive difficulty err: %w", err)
-	}
-	difficulty, err = strconv.Atoi(string(diffBytes))
-
-	challenge, err := helpers.Read(conn)
-	if err != nil {
-		return nil, fmt.Errorf("receive challenge err: %w", err)
-	}
-
-	_, n := solveChallenge(string(challenge))
-	ns := strconv.FormatInt(n, 10)
-	if err := helpers.Write(conn, []byte(ns)); err != nil {
-		return nil, fmt.Errorf("send solution err: %w", err)
-	}
-
-	quote, err := helpers.Read(conn)
-	if err != nil {
-		return nil, fmt.Errorf("receive quote err: %w", err)
-	}
-
-	return quote, nil
-}
-
+// solveChallenge - solve challenge
 func solveChallenge(challenge string) (string, int64) {
 	var nonce int64
 	var hash string
@@ -109,4 +48,75 @@ func solveChallenge(challenge string) (string, int64) {
 		}
 	}
 	return hash, nonce
+}
+
+type Client struct {
+}
+
+func NewClient() *Client {
+	return &Client{}
+}
+
+// Run - run client
+func (c *Client) Run(ctx context.Context, count int) error {
+	for i := 0; i < count; i++ {
+		if ctx.Err() != nil {
+			break
+		}
+
+		q, err := c.GetQuote(ctx)
+		if err != nil {
+			log.Error().Msg(err.Error())
+		} else {
+			fmt.Println(string(q))
+		}
+	}
+
+	return nil
+}
+
+// GetQuote - get quote from server
+func (c *Client) GetQuote(ctx context.Context) ([]byte, error) {
+	var dialer net.Dialer
+	conn, err := dialer.DialContext(ctx, "tcp", "localhost:8888")
+	if err != nil {
+		return nil, fmt.Errorf("failed to dial: %w", err)
+	}
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Error().Msg(err.Error())
+		}
+	}()
+
+	if err := helpers.Write(conn, []byte("challenge")); err != nil {
+		return nil, fmt.Errorf("send challenge request err: %w", err)
+	}
+
+	// receive difficulty
+	diffBytes, err := helpers.Read(conn)
+	if err != nil {
+		return nil, fmt.Errorf("receive difficulty err: %w", err)
+	}
+	difficulty, err = strconv.Atoi(string(diffBytes))
+
+	// receive challenge
+	challenge, err := helpers.Read(conn)
+	if err != nil {
+		return nil, fmt.Errorf("receive challenge err: %w", err)
+	}
+
+	// solve challenge
+	_, n := solveChallenge(string(challenge))
+	ns := strconv.FormatInt(n, 10)
+	if err := helpers.Write(conn, []byte(ns)); err != nil {
+		return nil, fmt.Errorf("send solution err: %w", err)
+	}
+
+	// receive quote
+	quote, err := helpers.Read(conn)
+	if err != nil {
+		return nil, fmt.Errorf("receive quote err: %w", err)
+	}
+
+	return quote, nil
 }
