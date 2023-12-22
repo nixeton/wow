@@ -8,22 +8,25 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"wow/config"
 )
 
 const (
-	difficulty = 5
-	prefix     = "0"
+	prefix = "0"
 )
 
 type PowUsecase struct {
+	config *config.Config
 }
 
-func NewPowUsecase() *PowUsecase {
-	return &PowUsecase{}
+func NewPowUsecase(config *config.Config) *PowUsecase {
+	return &PowUsecase{
+		config: config,
+	}
 }
 
 func (uc *PowUsecase) Verify(challenge string, nonce int) error {
-	if !verify(challenge, nonce) {
+	if !verify(challenge, nonce, uc.config.Difficulty) {
 		return errors.New("invalid nonce")
 	}
 
@@ -42,7 +45,7 @@ func generateChallenge() string {
 	return challenge
 }
 
-func verify(challenge string, nonce int) bool {
+func verify(challenge string, nonce int, difficulty int) bool {
 	prefix := strings.Repeat(prefix, difficulty)
 	data := challenge + strconv.Itoa(nonce)
 

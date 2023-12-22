@@ -28,7 +28,7 @@ func Run(config *config.Config) {
 
 	repo := repository.NewRepository()
 
-	powUsecase := usecase.NewPowUsecase()
+	powUsecase := usecase.NewPowUsecase(config)
 	powService := service.NewPowService(powUsecase)
 
 	quoteUsecase := usecase.NewQuoteUsecase(repo)
