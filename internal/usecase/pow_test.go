@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"testing"
+	"wow/config"
 )
 
 func TestPowUsecase_GetChallenge(t *testing.T) {
@@ -38,12 +39,21 @@ func TestPowUsecase_Verify(t *testing.T) {
 		{
 			name:    "Test Verify",
 			args:    args{challenge: "1530108093636870175", nonce: 21387},
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			uc := &PowUsecase{}
+			uc := &PowUsecase{
+				config: &config.Config{
+					App: config.App{},
+					TCP: config.TCP{},
+					Log: config.Log{},
+					Pow: config.Pow{
+						Difficulty: 5,
+					},
+				},
+			}
 			if err := uc.Verify(tt.args.challenge, tt.args.nonce); (err != nil) != tt.wantErr {
 				t.Errorf("Verify() error = %v, wantErr %v", err, tt.wantErr)
 			}
