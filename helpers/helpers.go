@@ -3,14 +3,10 @@ package helpers
 import (
 	"encoding/binary"
 	"io"
-	"log"
 	"net"
 )
 
-func FatalApplication(msg string, err error) {
-	log.Fatalf("%s > %s\n", msg, err)
-}
-
+// Read reads a message from a connection
 func Read(conn net.Conn) (msg []byte, err error) {
 	var l uint64
 	if err = binary.Read(conn, binary.BigEndian, &l); err != nil {
@@ -23,6 +19,7 @@ func Read(conn net.Conn) (msg []byte, err error) {
 	return msg, err
 }
 
+// Write writes a message to a connection
 func Write(conn net.Conn, msg []byte) (err error) {
 	if err = binary.Write(conn, binary.BigEndian, uint64(len(msg))); err != nil {
 		return err
