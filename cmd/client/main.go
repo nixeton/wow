@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"wow/helpers"
@@ -17,7 +18,6 @@ var difficulty int
 // maxCount - max count of iterations
 const maxCount = 1000
 const prefix = "0"
-const address = "localhost:8888"
 
 func main() {
 	client := NewClient()
@@ -80,6 +80,7 @@ func (c *Client) Run(ctx context.Context, count int) error {
 // GetQuote - get quote from server
 func (c *Client) GetQuote(ctx context.Context) ([]byte, error) {
 	var dialer net.Dialer
+	address := os.Getenv("SERVER_ADDR")
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		return nil, fmt.Errorf("field to connect: %w", err)
