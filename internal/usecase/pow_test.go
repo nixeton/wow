@@ -20,8 +20,6 @@ func TestPowUsecase_GetChallenge(t *testing.T) {
 			if len(got) == 0 {
 				t.Errorf("GetChallenge() = %v", got)
 			}
-
-			t.Log("GetChallenge() = ", uc.GetChallenge())
 		})
 	}
 }
@@ -37,8 +35,13 @@ func TestPowUsecase_Verify(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Test Verify",
+			name:    "Test Verify - success case",
 			args:    args{challenge: "1530108093636870175", nonce: 21387},
+			wantErr: false,
+		},
+		{
+			name:    "Test Verify - incorrect case",
+			args:    args{challenge: "1530108093636870175", nonce: 21383},
 			wantErr: true,
 		},
 	}
@@ -49,7 +52,7 @@ func TestPowUsecase_Verify(t *testing.T) {
 					TCP: config.TCP{},
 					Log: config.Log{},
 					Pow: config.Pow{
-						Difficulty: 5,
+						Difficulty: 4,
 					},
 				},
 			}

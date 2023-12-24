@@ -6,29 +6,35 @@ import (
 )
 
 func TestQuoteUsecase_GetQuote(t *testing.T) {
-
 	type fields struct {
+		quoteRepository QuoteRepository
 	}
-
 	tests := []struct {
-		name   string
-		fields fields
+		name    string
+		fields  fields
+		want    string
+		wantErr bool
 	}{
 		{
-			name:   "GetRandomQuote",
-			fields: fields{},
+			name: "Test GetQuote - success case",
+			fields: fields{
+				quoteRepository: repository.NewRepository(),
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := repository.NewRepository()
-
 			uc := &QuoteUsecase{
-				quoteRepository: r,
+				quoteRepository: tt.fields.quoteRepository,
 			}
-
-			if got := uc.GetQuote(); len(got) == 0 {
-				t.Errorf("GetQuote() = %v, want len > 0", got)
+			got, err := uc.GetQuote()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetQuote() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) == 0 {
+				t.Errorf("GetQuote() result must be greate than 0")
 			}
 		})
 	}
