@@ -1,7 +1,7 @@
 package usecase
 
 type QuoteRepository interface {
-	GetRandomQuote() string
+	GetRandomQuote() (string, error)
 }
 
 type QuoteUsecase struct {
@@ -14,6 +14,6 @@ func NewQuoteUsecase(repository QuoteRepository) *QuoteUsecase {
 	}
 }
 
-func (uc *QuoteUsecase) GetQuote() string {
+func (uc *QuoteUsecase) GetQuote() (string, error) {
 	return uc.quoteRepository.GetRandomQuote()
 }

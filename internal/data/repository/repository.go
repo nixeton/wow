@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"math/rand"
 )
 
@@ -24,12 +25,15 @@ func NewRepository() *Repository {
 	return &Repository{}
 }
 
-func (r *Repository) GetRandomQuote() string {
-
+func (r *Repository) GetRandomQuote() (string, error) {
 	return getRandomQuote(quotes)
 }
 
-func getRandomQuote(quotes []string) string {
+func getRandomQuote(quotes []string) (string, error) {
+	if len(quotes) == 0 {
+		return "", errors.New("failed to get quote, empty repo")
+	}
+
 	randomIndex := rand.Intn(len(quotes))
-	return quotes[randomIndex]
+	return quotes[randomIndex], nil
 }

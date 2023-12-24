@@ -19,7 +19,7 @@ type ProceedPow interface {
 }
 
 type ProceedQuote interface {
-	GetQuote() string
+	GetQuote() (string, error)
 }
 
 type Server struct {
@@ -158,7 +158,12 @@ func (s *Server) handle(conn net.Conn) {
 	}
 
 	// send quote
-	quote := s.proceedQuote.GetQuote()
+	quote, err := s.proceedQuote.GetQuote()
+	if err != nil {
+		s.logger.Error("failed to get quote")
+		return
+	}
+
 	if err = helpers.Write(conn, []byte(quote)); err != nil {
 		s.logger.Error("failed to write quote: ", err.Error())
 		return

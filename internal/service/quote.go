@@ -12,6 +12,6 @@ func NewQuoteService(quoteUsecase *usecase.QuoteUsecase) *QuoteService {
 	}
 }
 
-func (s *QuoteService) GetQuote() string {
+func (s *QuoteService) GetQuote() (string, error) {
 	return s.quoteUsecase.GetQuote()
 }
